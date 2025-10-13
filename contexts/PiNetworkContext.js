@@ -240,8 +240,7 @@ export function PiNetworkProvider({ children }) {
     setCurrentPaymentId(null);
 
     try {
-      // Initialize Pi SDK if not already done (following reference - not awaited, returns void)
-      window.Pi.init({ version: "2.0", sandbox: true });
+      window.Pi.init({ version: "2.0", sandbox: false });
       
       console.log('💰 Creating payment with data:', paymentData);
       
