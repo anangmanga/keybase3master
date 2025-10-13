@@ -127,7 +127,10 @@ export function PiNetworkProvider({ children }) {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ accessToken: auth.accessToken }),
+          body: JSON.stringify({ 
+            accessToken: auth.accessToken,
+            userData: userData // Include full user data from Pi Network
+          }),
         });
 
         if (response.ok) {
@@ -135,6 +138,29 @@ export function PiNetworkProvider({ children }) {
           setUser(backendResponse.user);
           localStorage.setItem('pi_user', JSON.stringify(backendResponse.user));
           console.log('✅ User verified and data synced with backend');
+        } else if (response.status === 409) {
+          // Handle case where user already exists - refresh token and try again
+          console.log('⚠️ User already exists, refreshing authentication...');
+          const retryResponse = await fetch('/api/pi/auth/verify', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+              accessToken: auth.accessToken,
+              userData: userData,
+              update: true // Signal that we want to update existing user
+            }),
+          });
+          
+          if (retryResponse.ok) {
+            const backendResponse = await retryResponse.json();
+            setUser(backendResponse.user);
+            localStorage.setItem('pi_user', JSON.stringify(backendResponse.user));
+            console.log('✅ User data updated successfully');
+          } else {
+            throw new Error('Failed to update existing user');
+          }
         } else {
           const errorData = await response.json();
           console.warn('⚠️ Backend verification failed, but authentication succeeded on frontend:', errorData.message);

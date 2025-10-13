@@ -19,33 +19,31 @@ export default async function handler(req, res) {
     const piService = getPiPaymentService();
     const piUser = await piService.verifyUserToken(accessToken);
 
-    // Check if user exists in our database
-    let user = await prisma.user.findUnique({
+    
+    const existingUser = await prisma.user.findUnique({
       where: { user_uid: piUser.uid }
     });
 
-    if (!user) {
-      // Create new user
-      user = await prisma.user.create({
-        data: {
-          user_uid: piUser.uid,
-          piUsername: piUser.username,
-          piAccessToken: accessToken,
-          piAuthenticatedAt: new Date(),
-          role: 'reader'
-        }
-      });
-    } else {
-      // Update existing user
-      user = await prisma.user.update({
-        where: { user_uid: piUser.uid },
-        data: {
-          piUsername: piUser.username,
-          piAccessToken: accessToken,
-          piAuthenticatedAt: new Date()
-        }
-      });
-    }
+    // Use upsert to either create or update the user
+    const user = await prisma.user.upsert({
+      where: { 
+        user_uid: piUser.uid 
+      },
+      update: {
+        piAccessToken: accessToken,
+        piAuthenticatedAt: new Date(),
+        // Only update username if it has changed
+        ...(piUser.username && { piUsername: piUser.username })
+      },
+      create: {
+        user_uid: piUser.uid,
+        piUsername: piUser.username,
+        piAccessToken: accessToken,
+        piAuthenticatedAt: new Date(),
+        // If user exists, keep their role, otherwise default to 'reader'
+        role: existingUser?.role
+      }
+    });
 
     // Return user data without sensitive information
     const { piAccessToken: _, ...userData } = user;
