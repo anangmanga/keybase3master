@@ -80,7 +80,7 @@ export function PiNetworkProvider({ children }) {
       console.log('🔐 Starting authentication flow...');
       
       // Initialize Pi SDK
-      await window.Pi.init({ version: "2.0", sandbox: true });
+      await window.Pi.init({ version: "2.0", sandbox: false });
       
       // Handle incomplete payments callback (following PIFRONTENDINTEGRATION.ts)
       const onIncompletePaymentFound = async (payment) => {
