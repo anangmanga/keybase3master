@@ -1,0 +1,259 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Property {
+  id          String   @id @default(cuid())
+  sellerId    String?
+  seller      User?    @relation("PropertySeller", fields: [sellerId], references: [id], onDelete: SetNull)
+  type        String   // Apartment, House, Villa, Commercial
+  title       String
+  pricePi     Int
+  location    String
+  beds        Int?
+  baths       Int?
+  area        String?
+  images      String[] // Array of image URLs
+  isNew       Boolean  @default(false)
+  status      String   @default("For sale") // For sale, To rent
+  yearBuilt   Int?
+  floor       Int?
+  totalFloors Int?
+  heating     String?
+  energyRating String?
+  parking     String?
+  furnished   String?
+  petsAllowed String?
+  balcony     String?
+  garden      String?
+  storage     String?
+  lotSizeSqm  Int?
+  hoaFeesPi   Int?
+  taxesPi     Int?
+  eircode     String?
+  propertyId  String?
+  features    String[] // Array of features
+  safetyFeatures String[] // Array of safety features
+  contactMethod String?
+  contactHandle String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("properties")
+}
+
+model Car {
+  id                String   @id @default(cuid())
+  sellerId          String?
+  seller            User?    @relation("CarSeller", fields: [sellerId], references: [id], onDelete: SetNull)
+  type              String   // Hatchback, Sedan, SUV, Coupe, Van, Pickup
+  title             String
+  pricePi           Int
+  location          String
+  mileage           String
+  year              Int
+  images            String[] // Array of image URLs
+  isNew             Boolean  @default(false)
+  
+  // Seller info
+  sellerName        String?
+  contactMethod     String?
+  contactHandle     String?
+  availability      String?
+  negotiable        Boolean  @default(true)
+  tradeIn           Boolean  @default(false)
+  delivery          String?
+  
+  // Vehicle specs
+  make              String?
+  model             String?
+  trim              String?
+  body              String?
+  fuel              String?
+  transmission      String?
+  drivetrain        String?
+  engine            String?
+  powerKW           Int?
+  powerBHP          Int?
+  consumptionL100   Float?
+  consumptionKWh100 Float?
+  emissions         Int?
+  
+  // History
+  owners            Int?
+  nctExpiry         String?
+  taxExpiry         String?
+  serviceHistory    String?
+  lastServiceAtKm   Int?
+  lastServiceDate   String?
+  accidentHistory   String?
+  currentFaults     String?
+  tyres             String?
+  brakes            String?
+  keys              Int?
+  conditionNotes    String?
+  modifications     String?
+  financeCleared    Boolean  @default(false)
+  
+  // Physical specs
+  doors             Int?
+  seats             Int?
+  color             String?
+  bootL             Int?
+  wheelbaseMm       Int?
+  weightKg          Int?
+  
+  // Identification
+  vin               String?
+  reg               String?
+  
+  // Features
+  features          String[] // Array of features
+  safetyFeatures    String[] // Array of safety features
+  
+  // Media
+  videoUrl          String?
+  docs              String[] // Array of document URLs
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("cars")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  user_uid    String   @unique // Primary identifier from Pi Network
+  piUsername  String?  @unique
+  from_address String? // Pi wallet address
+  to_address  String?  // App wallet address
+  role        String   @default("reader") // admin, seller, reader
+  avatar      String?
+  bio         String?  @db.VarChar(500)
+  
+  // Authentication metadata
+  piAccessToken String?
+  piAuthenticatedAt DateTime?
+  
+  // Additional Pi Network data
+  piAppId     String?
+  piReceivingEmail Boolean @default(false)
+  
+  // Pi Credentials (stored as JSON)
+  piCredentials Json?
+  
+  // Relations
+  sellerApplication SellerApplication?
+  donations         Donation[]
+  sentMessages      Message[] @relation("SentMessages")
+  receivedMessages  Message[] @relation("ReceivedMessages")
+  sentChats         Chat[] @relation("ChatSender")
+  receivedChats     Chat[] @relation("ChatReceiver")
+  properties        Property[] @relation("PropertySeller")
+  cars              Car[] @relation("CarSeller")
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("users")
+}
+
+model SellerApplication {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Business Details
+  businessName String
+  businessType String  // Individual, Company, Dealer
+  location     String
+  description  String
+  email        String
+  phone        String?
+  
+  // Proof of Ownership
+  ownershipProof String[] // Array of document URLs
+  
+  // Application Status
+  status      String   @default("pending") // pending, approved, rejected
+  reviewedBy  String?  // Admin user ID
+  reviewedAt  DateTime?
+  notes       String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("seller_applications")
+}
+
+model Donation {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  
+  amount      Float
+  piPaymentId String   @unique
+  txid        String?
+  status      String   @default("pending") // pending, completed, failed
+  memo        String?
+  metadata    Json?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("donations")
+}
+
+model Chat {
+  id          String   @id @default(cuid())
+  senderId    String
+  sender      User     @relation("ChatSender", fields: [senderId], references: [id])
+  receiverId  String
+  receiver    User     @relation("ChatReceiver", fields: [receiverId], references: [id])
+  
+  // Chat metadata
+  listingType String?  // car, property
+  listingId   String?  // ID of the car or property being discussed
+  
+  // Last message info
+  lastMessage String?
+  lastMessageAt DateTime?
+  unreadCount Int @default(0)
+  
+  // Relations
+  messages    Message[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([senderId, receiverId, listingType, listingId])
+  @@map("chats")
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  chatId      String
+  chat        Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  senderId    String
+  sender      User     @relation("SentMessages", fields: [senderId], references: [id])
+  receiverId  String
+  receiver    User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  
+  content     String
+  messageType String   @default("text") // text, image, file
+  isRead      Boolean  @default(false)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("messages")
+}
