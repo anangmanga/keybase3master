@@ -157,7 +157,7 @@ export default function Landing() {
               Ready to Get Started?
             </h2>
             <p className="text-xl text-blue-100 mb-8">
-              Join thousands of users already trading on KeyBase
+              Join thousands of users already on KeyBase
             </p>
             <div className="transform hover:-translate-y-1 transition-all duration-200">
               <PiLoginButton className="inline-flex items-center justify-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-2xl shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-white/30" />
