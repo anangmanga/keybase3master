@@ -1,7 +1,7 @@
 'use client';
 
-import { getPiPaymentService } from './lib/pi-payment-service';
-import { prisma } from './lib/prisma';
+import { getPiPaymentService } from'@/lib/pi-payment-service';
+import { prisma } from '@/lib/prisma'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
