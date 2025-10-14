@@ -1,5 +1,3 @@
-
-
 import { getPiPaymentService } from '../../../../lib/pi-payment-service';
 import { prisma } from '../../../../lib/prisma';
 
@@ -75,7 +73,7 @@ export default async function handler(req, res) {
     res.status(401).json({ 
       success: false, 
       message: 'Token verification failed',
-      error: error.message 
-    });
-  }
+      error: error.message 
+    });
+  }
 }
