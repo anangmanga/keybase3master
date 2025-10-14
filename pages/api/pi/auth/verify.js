@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     const piService = getPiPaymentService();
     const piUser = await piService.verifyUserToken(accessToken);
 
-    
+    // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { user_uid: piUser.uid }
     });
@@ -34,19 +34,35 @@ export default async function handler(req, res) {
         piAuthenticatedAt: new Date(),
         // Only update username if it has changed
         ...(piUser.username && { piUsername: piUser.username })
+        // NOTE: We do NOT update the role here - it stays as set in the database
       },
       create: {
         user_uid: piUser.uid,
         piUsername: piUser.username,
         piAccessToken: accessToken,
         piAuthenticatedAt: new Date(),
-        // If user exists, keep their role, otherwise default to 'reader'
-        role: existingUser?.role
+        role: 'reader' // Default role for new users
+      },
+      select: {
+        id: true,
+        user_uid: true,
+        piUsername: true,
+        from_address: true,
+        to_address: true,
+        role: true,
+        avatar: true,
+        bio: true,
+        piAuthenticatedAt: true,
+        createdAt: true,
+        updatedAt: true
+        // Explicitly NOT selecting piAccessToken for security
       }
     });
 
-    // Return user data without sensitive information
-    const { piAccessToken: _, ...userData } = user;
+    console.log('✅ User verified with role:', user.role, 'for user:', user.piUsername || user.user_uid);
+
+    // Return user data (already excluding sensitive info via select)
+    const userData = user;
 
     res.status(200).json({
       success: true,
@@ -57,7 +73,7 @@ export default async function handler(req, res) {
     res.status(401).json({ 
       success: false, 
       message: 'Token verification failed',
-      error: error.message 
-    });
-  }
+      error: error.message 
+    });
+  }
 }
