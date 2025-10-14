@@ -1,3 +1,5 @@
+'use client';
+
 import { getPiPaymentService } from '../../../../lib/pi-payment-service';
 import { prisma } from '../../../../lib/prisma';
 
