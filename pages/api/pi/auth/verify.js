@@ -51,17 +51,29 @@ export default async function handler(req, res) {
 
     if (existingUser) {
       console.log('📝 Updating existing user:', existingUser.user_uid);
-      // Update existing user with latest Pi data (like your MongoDB projects)
+      console.log('   Current username:', existingUser.piUsername);
+      console.log('   New username from Pi:', piUser.username);
+      
+      // Prepare update data - only update username if it's different and not null
+      const updateData = {
+        from_address: piUser.wallet_address || null,
+        piAccessToken: accessToken,
+        piAuthenticatedAt: currentTime,
+        updatedAt: currentTime
+      };
+      
+      // Only update username if it's different from current username
+      if (piUser.username && piUser.username !== existingUser.piUsername) {
+        updateData.piUsername = piUser.username;
+        console.log('   Updating username to:', piUser.username);
+      } else {
+        console.log('   Username unchanged, keeping current username');
+      }
+      
+      // Update existing user with latest Pi data
       user = await prisma.user.update({
         where: { user_uid: piUser.uid },
-        data: {
-          piUsername: piUser.username,           // Update username safely
-          from_address: piUser.wallet_address || null,
-          piAccessToken: accessToken,
-          piAuthenticatedAt: currentTime,
-          updatedAt: currentTime
-          // Role and other fields stay intact - don't update them
-        },
+        data: updateData,
         select: {
           id: true,
           user_uid: true,
