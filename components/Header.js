@@ -95,7 +95,7 @@ export default function Header() {
             </div>
 
             <nav className="flex flex-col gap-2 overflow-y-auto flex-1">
-              <Link href="/explore" className="py-2 px-2 rounded hover:bg-gray-50">Marketplace</Link>
+              <Link href="/explore" className="py-2 px-2 rounded hover:bg-gray-50">Listings</Link>
               <Link href="/properties" className="py-2 px-2 rounded hover:bg-gray-50">Properties</Link>
               <Link href="/cars" className="py-2 px-2 rounded hover:bg-gray-50">Cars</Link>
               <Link href="/messages" className="py-2 px-2 rounded hover:bg-gray-50">Messages</Link>
