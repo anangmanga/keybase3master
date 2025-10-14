@@ -45,14 +45,15 @@ export default async function handler(req, res) {
     let user;
 
     if (existingUser) {
-      // User exists - just update token and timestamp, NOT username or role
+      // User exists - update ONLY token and timestamp, preserve everything else
       user = await prisma.user.update({
         where: { user_uid: piUser.uid },
         data: {
           piAccessToken: accessToken,
           piAuthenticatedAt: new Date(),
-          // DO NOT update piUsername to avoid unique constraint violations
-          // DO NOT update role - it should only be changed by admins
+          updatedAt: new Date()
+          // DO NOT update piUsername, role, or any other fields
+          // This preserves the existing user's data and role
         },
         select: {
           id: true,
@@ -70,59 +71,28 @@ export default async function handler(req, res) {
       });
     } else {
       // New user - create with Pi username
-      try {
-        user = await prisma.user.create({
-          data: {
-            user_uid: piUser.uid,
-            piUsername: piUser.username,
-            piAccessToken: accessToken,
-            piAuthenticatedAt: new Date(),
-            role: 'reader' // Default role for new users
-          },
-          select: {
-            id: true,
-            user_uid: true,
-            piUsername: true,
-            from_address: true,
-            to_address: true,
-            role: true,
-            avatar: true,
-            bio: true,
-            piAuthenticatedAt: true,
-            createdAt: true,
-            updatedAt: true
-          }
-        });
-      } catch (createError) {
-        // If username is taken, create without username (will use user_uid)
-        if (createError.code === 'P2002' && createError.meta?.target?.includes('piUsername')) {
-          console.warn('⚠️ Username already taken, creating user without username');
-          user = await prisma.user.create({
-            data: {
-              user_uid: piUser.uid,
-              piUsername: null, // Don't set username if it's taken
-              piAccessToken: accessToken,
-              piAuthenticatedAt: new Date(),
-              role: 'reader'
-            },
-            select: {
-              id: true,
-              user_uid: true,
-              piUsername: true,
-              from_address: true,
-              to_address: true,
-              role: true,
-              avatar: true,
-              bio: true,
-              piAuthenticatedAt: true,
-              createdAt: true,
-              updatedAt: true
-            }
-          });
-        } else {
-          throw createError;
+      user = await prisma.user.create({
+        data: {
+          user_uid: piUser.uid,
+          piUsername: piUser.username,
+          piAccessToken: accessToken,
+          piAuthenticatedAt: new Date(),
+          role: 'reader' // Default role for new users
+        },
+        select: {
+          id: true,
+          user_uid: true,
+          piUsername: true,
+          from_address: true,
+          to_address: true,
+          role: true,
+          avatar: true,
+          bio: true,
+          piAuthenticatedAt: true,
+          createdAt: true,
+          updatedAt: true
         }
-      }
+      });
     }
 
     console.log('✅ User verified with role:', user.role, 'for user:', user.piUsername || user.user_uid);
