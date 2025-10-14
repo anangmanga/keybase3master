@@ -49,7 +49,12 @@ export function PiNetworkProvider({ children }) {
               localStorage.setItem('pi_user', JSON.stringify(backendResponse.user));
             } else if (response.status === 401) {
               // Token expired - logout user
-              console.warn('⚠️ Access token expired - logging out');
+              const errorData = await response.json().catch(() => ({}));
+              if (errorData.expired) {
+                console.warn('⚠️ Access token expired - clearing auth and prompting re-login');
+              } else {
+                console.warn('⚠️ Authentication failed - logging out');
+              }
               localStorage.removeItem('pi_access_token');
               localStorage.removeItem('pi_user');
               setUser(null);
@@ -221,7 +226,12 @@ export function PiNetworkProvider({ children }) {
         return backendResponse.user;
       } else if (response.status === 401) {
         // Token expired - logout user
-        console.warn('⚠️ Access token expired - logging out');
+        const errorData = await response.json().catch(() => ({}));
+        if (errorData.expired) {
+          console.warn('⚠️ Access token expired - please log in again');
+        } else {
+          console.warn('⚠️ Authentication failed - logging out');
+        }
         logout();
       }
     } catch (error) {
@@ -399,4 +409,3 @@ export function usePiNetwork() {
   }
   return context;
 }
-
