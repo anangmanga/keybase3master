@@ -51,66 +51,143 @@ export default async function handler(req, res) {
 
     if (existingUser) {
       console.log('📝 Updating existing user:', existingUser.user_uid);
-      // Update existing user with latest Pi data (like your MongoDB projects)
-      user = await prisma.user.update({
-        where: { user_uid: piUser.uid },
-        data: {
-          piUsername: piUser.username,           // Update username safely
-          from_address: piUser.wallet_address || null,
-          piAccessToken: accessToken,
-          piAuthenticatedAt: currentTime,
-          updatedAt: currentTime
-          // Role and other fields stay intact - don't update them
-        },
-        select: {
-          id: true,
-          user_uid: true,
-          piUsername: true,
-          from_address: true,
-          to_address: true,
-          role: true,
-          avatar: true,
-          bio: true,
-          piAuthenticatedAt: true,
-          createdAt: true,
-          updatedAt: true
+      
+      // Check if username update would cause conflict
+      const usernameChanged = existingUser.piUsername !== piUser.username;
+      
+      try {
+        // Update existing user with latest Pi data
+        user = await prisma.user.update({
+          where: { user_uid: piUser.uid },
+          data: {
+            ...(usernameChanged && { piUsername: piUser.username }), // Only update if changed
+            from_address: piUser.wallet_address || null,
+            piAccessToken: accessToken,
+            piAuthenticatedAt: currentTime,
+            updatedAt: currentTime
+          },
+          select: {
+            id: true,
+            user_uid: true,
+            piUsername: true,
+            from_address: true,
+            to_address: true,
+            role: true,
+            avatar: true,
+            bio: true,
+            piAuthenticatedAt: true,
+            createdAt: true,
+            updatedAt: true
+          }
+        });
+        console.log('✅ Existing user updated successfully');
+      } catch (updateError) {
+        // Handle username unique constraint violation
+        if (updateError.code === 'P2002' && updateError.meta?.target?.includes('piUsername')) {
+          console.warn('⚠️ Username conflict on update, keeping existing username:', existingUser.piUsername);
+          
+          // Update without changing username
+          user = await prisma.user.update({
+            where: { user_uid: piUser.uid },
+            data: {
+              // Don't update piUsername
+              from_address: piUser.wallet_address || null,
+              piAccessToken: accessToken,
+              piAuthenticatedAt: currentTime,
+              updatedAt: currentTime
+            },
+            select: {
+              id: true,
+              user_uid: true,
+              piUsername: true,
+              from_address: true,
+              to_address: true,
+              role: true,
+              avatar: true,
+              bio: true,
+              piAuthenticatedAt: true,
+              createdAt: true,
+              updatedAt: true
+            }
+          });
+          console.log('✅ User updated without username change');
+        } else {
+          throw updateError;
         }
-      });
-      console.log('✅ Existing user updated successfully');
+      }
     } else {
       console.log('🆕 Creating new user for:', piUser.uid);
-      // Create new user with Pi Network data
-      user = await prisma.user.create({
-        data: {
-          user_uid: piUser.uid,
-          piUsername: piUser.username,
-          from_address: piUser.wallet_address || null,
-          role: 'reader',
-          piAccessToken: accessToken,
-          piAuthenticatedAt: currentTime,
-          // Store additional Pi data
-          piAppId: piUser.app_id,
-          piCredentials: piUser.credentials,
-          piReceivingEmail: piUser.receiving_email,
-        },
-        select: {
-          id: true,
-          user_uid: true,
-          piUsername: true,
-          from_address: true,
-          to_address: true,
-          role: true,
-          avatar: true,
-          bio: true,
-          piAuthenticatedAt: true,
-          createdAt: true,
-          updatedAt: true
+      
+      try {
+        // Create new user with Pi Network data
+        user = await prisma.user.create({
+          data: {
+            user_uid: piUser.uid,
+            piUsername: piUser.username,
+            from_address: piUser.wallet_address || null,
+            role: 'reader',
+            piAccessToken: accessToken,
+            piAuthenticatedAt: currentTime,
+            // Store additional Pi data
+            piAppId: piUser.app_id,
+            piCredentials: piUser.credentials,
+            piReceivingEmail: piUser.receiving_email,
+          },
+          select: {
+            id: true,
+            user_uid: true,
+            piUsername: true,
+            from_address: true,
+            to_address: true,
+            role: true,
+            avatar: true,
+            bio: true,
+            piAuthenticatedAt: true,
+            createdAt: true,
+            updatedAt: true
+          }
+        });
+        console.log('✅ New user created successfully');
+      } catch (createError) {
+        // Handle username unique constraint violation on create
+        if (createError.code === 'P2002' && createError.meta?.target?.includes('piUsername')) {
+          console.warn('⚠️ Username already taken, creating user with generated username');
+          
+          // Create with a unique generated username
+          user = await prisma.user.create({
+            data: {
+              user_uid: piUser.uid,
+              piUsername: `user_${piUser.uid.slice(0, 8)}_${Date.now()}`,
+              from_address: piUser.wallet_address || null,
+              role: 'reader',
+              piAccessToken: accessToken,
+              piAuthenticatedAt: currentTime,
+              piAppId: piUser.app_id,
+              piCredentials: piUser.credentials,
+              piReceivingEmail: piUser.receiving_email,
+            },
+            select: {
+              id: true,
+              user_uid: true,
+              piUsername: true,
+              from_address: true,
+              to_address: true,
+              role: true,
+              avatar: true,
+              bio: true,
+              piAuthenticatedAt: true,
+              createdAt: true,
+              updatedAt: true
+            }
+          });
+          console.log('✅ New user created with generated username:', user.piUsername);
+        } else {
+          throw createError;
         }
-      });
-      console.log('✅ New user created successfully');
+      }
     }
 
-    // Return user data following Pi Network structure (like your previous projects)
+    // Return user data following Pi Network structure
     const userResponse = {
       id: user.id,
       user_uid: user.user_uid,
