@@ -241,10 +241,10 @@ function SectionGroup({ title, viewAllHref, newItems = [], groups = [], buildHre
         <section className="container py-10">
           <div className="rounded-2xl border bg-white p-6 text-center">
             <div className="font-semibold">No {title.toLowerCase()} yet</div>
-            <p className="mt-1 text-sm text-gray-600">Check back soon or create the first listing.</p>
+            <p className="mt-1 text-sm text-gray-600">Check back soon or become a seller.</p>
             <div className="mt-3">
-              <a href="/create" className="inline-flex items-center justify-center rounded-xl bg-brand-blue px-4 py-2 text-white text-sm font-semibold hover:bg-brand-dark">
-                Create Listing
+              <a href="/apply-seller" className="inline-flex items-center justify-center rounded-xl bg-brand-blue px-4 py-2 text-white text-sm font-semibold hover:bg-brand-dark">
+                Become a Seller
               </a>
             </div>
           </div>
