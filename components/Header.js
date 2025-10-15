@@ -142,7 +142,7 @@ export default function Header() {
               <div className="text-xs text-gray-500 px-2 mb-2">Connect</div>
               <div className="flex items-center gap-2 px-2">
                 <a
-                  href="#"
+                  href="https://x.com/keybasepi?s=21"
                   aria-label="X (Twitter)"
                   className="p-2 rounded-lg bg-gray-50 border hover:border-brand-blue focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/60 transition"
                 >

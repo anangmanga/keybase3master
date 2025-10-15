@@ -1,7 +1,7 @@
 // pages/api/upload-image.js
+import { put } from '@vercel/blob'
 import formidable from 'formidable'
 import fs from 'fs'
-import path from 'path'
 
 // Disable body parser to handle multipart/form-data
 export const config = {
@@ -40,32 +40,34 @@ export default async function handler(req, res) {
 
     // Generate unique filename
     const timestamp = Date.now()
+    const randomString = Math.random().toString(36).substring(2, 8)
     const originalName = uploadedFile.originalFilename || 'image'
-    const ext = path.extname(originalName)
-    const baseName = path.basename(originalName, ext).replace(/[^a-z0-9]/gi, '-').toLowerCase()
-    const newFileName = `${baseName}-${timestamp}${ext}`
+    const ext = originalName.split('.').pop()
+    const baseName = originalName.replace(/\.[^/.]+$/, '').replace(/[^a-z0-9]/gi, '-').toLowerCase()
+    const newFileName = `${baseName}-${timestamp}-${randomString}.${ext}`
 
-    // Determine upload directory based on listing type
+    // Determine folder based on listing type
     const listingType = (fields.type && fields.type[0]) || 'general'
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', listingType)
-    
-    // Create directory if it doesn't exist
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true })
-    }
+    const blobPath = `uploads/${listingType}/${newFileName}`
 
-    // Move file to upload directory
-    const newPath = path.join(uploadDir, newFileName)
-    fs.copyFileSync(uploadedFile.filepath, newPath)
-    fs.unlinkSync(uploadedFile.filepath) // Delete temp file
+    // Read the file as a buffer
+    const fileBuffer = fs.readFileSync(uploadedFile.filepath)
 
-    // Return public URL
-    const publicUrl = `/uploads/${listingType}/${newFileName}`
-    
+    // Upload to Vercel Blob Storage
+    const blob = await put(blobPath, fileBuffer, {
+      access: 'public',
+      contentType: uploadedFile.mimetype,
+    })
+
+    // Clean up temp file
+    fs.unlinkSync(uploadedFile.filepath)
+
+    // Return the public URL from Vercel Blob
     return res.status(200).json({
       success: true,
-      url: publicUrl,
-      filename: newFileName
+      url: blob.url,
+      filename: newFileName,
+      blobPath: blobPath
     })
   } catch (error) {
     console.error('Error uploading image:', error)
@@ -75,4 +77,3 @@ export default async function handler(req, res) {
     })
   }
 }
-

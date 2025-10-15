@@ -14,6 +14,7 @@
   "dependencies": {
     "@prisma/client": "^6.17.1",
     "@prisma/extension-accelerate": "^2.0.2",
+    "@vercel/blob": "^2.0.0",
     "autoprefixer": "^10.4.18",
     "axios": "^1.12.2",
     "formidable": "^3.5.4",
