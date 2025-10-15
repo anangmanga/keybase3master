@@ -62,8 +62,10 @@ export default async function handler(req, res) {
         updatedAt: currentTime
       };
       
-      // Only update username if it's different from current username
-      if (piUser.username && piUser.username !== existingUser.piUsername) {
+      // Only update username if it's different from current username AND not empty
+      if (piUser.username && 
+          piUser.username !== existingUser.piUsername && 
+          piUser.username.trim() !== '') {
         updateData.piUsername = piUser.username;
         console.log('   Updating username to:', piUser.username);
       } else {
@@ -71,24 +73,54 @@ export default async function handler(req, res) {
       }
       
       // Update existing user with latest Pi data
-      user = await prisma.user.update({
-        where: { user_uid: piUser.uid },
-        data: updateData,
-        select: {
-          id: true,
-          user_uid: true,
-          piUsername: true,
-          from_address: true,
-          to_address: true,
-          role: true,
-          avatar: true,
-          bio: true,
-          piAuthenticatedAt: true,
-          createdAt: true,
-          updatedAt: true
+      try {
+        user = await prisma.user.update({
+          where: { user_uid: piUser.uid },
+          data: updateData,
+          select: {
+            id: true,
+            user_uid: true,
+            piUsername: true,
+            from_address: true,
+            to_address: true,
+            role: true,
+            avatar: true,
+            bio: true,
+            piAuthenticatedAt: true,
+            createdAt: true,
+            updatedAt: true
+          }
+        });
+        console.log('✅ Existing user updated successfully');
+      } catch (updateError) {
+        // If username update fails due to unique constraint, try without username
+        if (updateError.code === 'P2002' && updateError.meta?.target?.includes('piUsername')) {
+          console.warn('⚠️ Username conflict on update, keeping existing username');
+          const safeUpdateData = { ...updateData };
+          delete safeUpdateData.piUsername;
+          
+          user = await prisma.user.update({
+            where: { user_uid: piUser.uid },
+            data: safeUpdateData,
+            select: {
+              id: true,
+              user_uid: true,
+              piUsername: true,
+              from_address: true,
+              to_address: true,
+              role: true,
+              avatar: true,
+              bio: true,
+              piAuthenticatedAt: true,
+              createdAt: true,
+              updatedAt: true
+            }
+          });
+          console.log('✅ Existing user updated successfully (without username change)');
+        } else {
+          throw updateError;
         }
-      });
-      console.log('✅ Existing user updated successfully');
+      }
     } else {
       console.log('🆕 Creating new user for:', piUser.uid);
       // Create new user with Pi Network data
