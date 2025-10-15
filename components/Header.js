@@ -95,10 +95,10 @@ export default function Header() {
             </div>
 
             <nav className="flex flex-col gap-2 overflow-y-auto flex-1">
-              <Link href="/explore" className="py-2 px-2 rounded hover:bg-gray-50">Listings</Link>
-              <Link href="/properties" className="py-2 px-2 rounded hover:bg-gray-50">Properties</Link>
-              <Link href="/cars" className="py-2 px-2 rounded hover:bg-gray-50">Cars</Link>
-              <Link href="/messages" className="py-2 px-2 rounded hover:bg-gray-50">Messages</Link>
+              <Link href="/explore" className="py-2 px-2 rounded hover:bg-gray-50" onClick={() => setOpen(false)}>Home</Link>
+              <Link href="/properties" className="py-2 px-2 rounded hover:bg-gray-50" onClick={() => setOpen(false)}>Properties</Link>
+              <Link href="/cars" className="py-2 px-2 rounded hover:bg-gray-50" onClick={() => setOpen(false)}>Cars</Link>
+              <Link href="/messages" className="py-2 px-2 rounded hover:bg-gray-50" onClick={() => setOpen(false)}>Messages</Link>
               
               {/* Seller/Admin specific links */}
               {user && (user.role === 'seller' || user.role === 'admin') && (
@@ -107,12 +107,12 @@ export default function Header() {
                   <div className="text-xs text-gray-500 px-2 mb-1">
                     {user.role === 'admin' ? 'Admin' : 'Seller'}
                   </div>
-                  <Link href="/seller-dashboard" className="py-2 px-2 rounded hover:bg-gray-50 font-medium">
+                  <Link href="/seller-dashboard" className="py-2 px-2 rounded hover:bg-gray-50 font-medium" onClick={() => setOpen(false)}>
                     {user.role === 'admin' ? 'Dashboard' : 'My Listings'}
                   </Link>
-                  <Link href="/create" className="py-2 px-2 rounded hover:bg-gray-50">Create Listing</Link>
+                  <Link href="/create" className="py-2 px-2 rounded hover:bg-gray-50" onClick={() => setOpen(false)}>Create Listing</Link>
                   {user.role === 'admin' && (
-                    <Link href="/admin" className="py-2 px-2 rounded hover:bg-gray-50">Admin Panel</Link>
+                    <Link href="/admin" className="py-2 px-2 rounded hover:bg-gray-50" onClick={() => setOpen(false)}>Admin Panel</Link>
                   )}
                 </>
               )}
@@ -121,7 +121,7 @@ export default function Header() {
               {user && user.role === 'reader' && (
                 <>
                   <div className="border-t my-2"></div>
-                  <Link href="/apply-seller" className="py-2 px-2 rounded hover:bg-gray-50 text-brand-blue font-medium">
+                  <Link href="/apply-seller" className="py-2 px-2 rounded hover:bg-gray-50 text-brand-blue font-medium" onClick={() => setOpen(false)}>
                     Become a Seller
                   </Link>
                 </>
@@ -131,10 +131,10 @@ export default function Header() {
               
               {/* Support links */}
               <div className="text-xs text-gray-500 px-2 mb-1">Support</div>
-              <Link href="/help" className="py-2 px-2 rounded hover:bg-gray-50">Help Center</Link>
-              <Link href="/safety" className="py-2 px-2 rounded hover:bg-gray-50">Safety Tips</Link>
-              <Link href="/terms" className="py-2 px-2 rounded hover:bg-gray-50">Terms & Privacy</Link>
-              <Link href="/donate" className="py-2 px-2 rounded hover:bg-gray-50">Support Us</Link>
+              <Link href="/help" className="py-2 px-2 rounded hover:bg-gray-50" onClick={() => setOpen(false)}>Help Center</Link>
+              <Link href="/safety" className="py-2 px-2 rounded hover:bg-gray-50" onClick={() => setOpen(false)}>Safety Tips</Link>
+              <Link href="/terms" className="py-2 px-2 rounded hover:bg-gray-50" onClick={() => setOpen(false)}>Terms & Privacy</Link>
+              <Link href="/donate" className="py-2 px-2 rounded hover:bg-gray-50" onClick={() => setOpen(false)}>Support Us</Link>
               
               <div className="border-t my-2"></div>
               
