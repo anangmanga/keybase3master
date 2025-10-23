@@ -198,7 +198,7 @@ export default function Properties({ properties }) {
      
 
             {/* actions */}
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+            {/* <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
               <a
                 href="/create"
                 className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-brand-blue text-white text-sm font-semibold shadow-soft transition hover:-translate-y-[1px] hover:shadow-md active:translate-y-0 active:shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/60"
@@ -211,7 +211,7 @@ export default function Properties({ properties }) {
               >
                 Browse listings
               </a>
-            </div>
+            </div> */}
        {/* quick stats */}
             <div className="mt-4 flex flex-wrap justify-center gap-2 text-xs sm:text-sm">
               <StatPill icon="home">{properties.length} total</StatPill>
@@ -487,10 +487,10 @@ export default function Properties({ properties }) {
               </li>
             </ul>
 
-            <div className="mt-4 grid grid-cols-2 gap-2">
+            {/* <div className="mt-4 grid grid-cols-2 gap-2">
               <a href="/create" className="rounded-xl bg-brand-blue px-4 py-2 text-center text-sm font-semibold text-white hover:bg-brand-dark">Create listing</a>
               <a href="/safety" className="rounded-xl border px-4 py-2 text-center text-sm font-semibold hover:border-brand-blue">Safety guide</a>
-            </div>
+            </div> */}
           </div>
         </div>
       </section>
