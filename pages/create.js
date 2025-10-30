@@ -309,17 +309,20 @@ export default function Create() {
 
         {/* Type toggle */}
         <div className="inline-flex rounded-xl border bg-white p-1 shadow-soft">
-          {['Properties', 'Automobiles'].map((t) => {
-            const active = type === t
+          {[
+            { value: 'Property', label: 'Properties' },
+            { value: 'Car', label: 'Automobiles' },
+          ].map(({ value, label }) => {
+            const active = type === value
             return (
               <button
-                key={t}
-                onClick={() => setType(t)}
+                key={value}
+                onClick={() => setType(value)}
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition
                   ${active ? 'bg-brand-blue text-white shadow' : 'text-gray-700 hover:bg-gray-50'}`}
                 type="button"
               >
-                {t}
+                {label}
               </button>
             )
           })}
@@ -742,3 +745,4 @@ function Field({ label, error, className = '', children }) {
     </div>
   )
 }
+
