@@ -203,7 +203,7 @@ function SectionGroup({ title, viewAllHref, newItems = [], groups = [], buildHre
         <section className="container py-8">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-xl font-semibold text-black">New Listings</h2>
-            <a href={viewAllHref} className="text-sm text-black hover:underline">View only new</a>
+            {/* <a href={viewAllHref} className="text-sm text-black hover:underline">View only new</a> */}
           </div>
 
           <Carousel>
@@ -242,11 +242,6 @@ function SectionGroup({ title, viewAllHref, newItems = [], groups = [], buildHre
           <div className="rounded-2xl border bg-white p-6 text-center">
             <div className="font-semibold">No {title.toLowerCase()} yet</div>
             <p className="mt-1 text-sm text-gray-600">Check back soon or become a seller.</p>
-            {/* <div className="mt-3">
-              <a href="/apply-seller" className="inline-flex items-center justify-center rounded-xl bg-brand-blue px-4 py-2 text-white text-sm font-semibold hover:bg-brand-dark">
-                Become a Seller
-              </a>
-            </div> */}
           </div>
         </section>
       )}

@@ -213,23 +213,6 @@ export default function Cars({ cars }) {
            
           
             </div>
-
-            {/* actions */}
-            {/* <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-              <a
-                href="/create"
-                className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-brand-blue text-white text-sm font-semibold shadow-soft transition hover:-translate-y-[1px] hover:shadow-md active:translate-y-0 active:shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/60"
-              >
-                Create Listing
-              </a>
-              <a
-                href="#results"
-                className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl border border-gray-300 text-sm font-semibold text-gray-900 hover:border-brand-blue hover:text-brand-dark hover:bg-white transition active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/30"
-              >
-                Browse listings
-              </a>
-            </div> */}
-
             {/* micro features */}
             <ul className="mt-4 flex flex-wrap items-center justify-center gap-2 text-[11px] sm:text-xs text-gray-600">
               <FeaturePill icon="shield">Safe, contact-first</FeaturePill>
@@ -249,12 +232,6 @@ export default function Cars({ cars }) {
         <section className="container mt-5">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-base sm:text-lg font-semibold">New Listings</h2>
-            <button
-              onClick={() => setCat('New Listings')}
-              className="text-sm text-brand-dark hover:underline"
-            >
-              View only new
-            </button>
           </div>
 
           <Carousel>
